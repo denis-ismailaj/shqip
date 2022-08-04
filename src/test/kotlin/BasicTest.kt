@@ -17,12 +17,18 @@ class BasicTest {
         val commonTokenStream = CommonTokenStream(lexer)
         val parser = ShqipParser(commonTokenStream)
 
-        val ctx = parser.say()
+        val ctx = parser.code()
         val visitor = ShqipVisitorImpl()
 
-        val text = visitor.visitSay(ctx)
+        val text = visitor.visitCode(ctx)
         println(text)
 
-        assertEquals(text, "je president")
+        val expected = """
+            Assign iksi to 0
+            Say "je president"
+            Output value of iksi
+        """.trimIndent()
+
+        assertEquals(expected, text)
     }
 }
