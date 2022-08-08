@@ -4,34 +4,48 @@ grammar Shqip;
  * Lexer Rules
  */
 
-NUMBER: [0-9]+;
+NUMBER: [-]?[1-9]+[0-9]?;
 
-fragment T          : ('T'|'t') ;
-fragment H          : ('H'|'h') ;
-fragment U          : ('U'|'u') ;
 fragment A          : ('A'|'a') ;
-fragment J          : ('J'|'j') ;
-fragment M          : ('M'|'m') ;
 fragment B          : ('B'|'b') ;
-fragment E          : ('E'|'e') ;
-fragment N          : ('N'|'n') ;
 fragment D          : ('D'|'d') ;
+fragment E          : ('E'|'e') ;
+fragment H          : ('H'|'h') ;
+fragment I          : ('I'|'i') ;
+fragment J          : ('J'|'j') ;
+fragment L          : ('L'|'l') ;
+fragment M          : ('M'|'m') ;
+fragment N          : ('N'|'n') ;
+fragment P          : ('P'|'p') ;
 fragment Q          : ('Q'|'q') ;
+fragment R          : ('R'|'r') ;
 fragment S          : ('S'|'s') ;
-
-THUAJ               : T H U A J ;
-MBA                 : M B A ;
-MEND                : M E N D ;
-QE                  : Q E ;
-SA                  : S A ;
-ESHTE               : E S H T E ;
+fragment T          : ('T'|'t') ;
+fragment U          : ('U'|'u') ;
+fragment Z          : ('Z'|'z') ;
 
 fragment LOWERCASE  : [a-z] ;
 fragment UPPERCASE  : [A-Z] ;
 
+THUAJ               : T H U A J ;
+
+MBA                 : M B A ;
+MEND                : M E N D ;
+QE                  : Q E ;
+
+SA                  : S A ;
+ESHTE               : E S H T E ;
+
+PLUS                : P L U S ;
+MINUS               : M I N U S ;
+HERE                : H E R E ;
+SHUMEZIM            : S H U M E Z I M ;
+PJESTIM             : P J E S T I M ;
+
 WORD                : (LOWERCASE | UPPERCASE)+ ;
 
-WS                  : (' ' | '\n')+ ;
+// WHITESPACE
+W                   : (' ' | '\n')+ ;
 
 PERIOD              : ('.' | '?') ;
 
@@ -41,18 +55,31 @@ NEWLINE             : ('\r'? '\n' | '\r')+ ;
  * Parser Rules
  */
 
-say             : THUAJ WS text ;
+say             : THUAJ W text ;
 
-assign          : MBA WS MEND WS QE WS WORD WS ESHTE WS NUMBER;
+mul             : (HERE | SHUMEZIM) ;
 
-output          : SA WS ESHTE WS WORD;
+mathOperator    : (PLUS | MINUS | mul | PJESTIM) ;
 
 expression
-    : say #SayExpr
-    | assign #AssignExpr
-    | output #OutputExpr
+    : SA W WORD W mathOperator W NUMBER
+    | SA W WORD
+    | NUMBER W mathOperator W NUMBER
+    | NUMBER
     ;
 
-code            : (expression PERIOD WS?)+ ;
+assign         
+ : MBA W MEND W QE W WORD W ESHTE W expression
+ ;
 
-text             : (WORD | WS)+ ;
+output          : SA W ESHTE W WORD;
+
+statement
+    : say
+    | assign
+    | output
+    ;
+
+code            : (statement PERIOD W?)+ ;
+
+text             : (WORD | W)+ ;
